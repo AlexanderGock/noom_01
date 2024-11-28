@@ -25,3 +25,4 @@ replay_pid*
 /sleep/.gradle
 /sleep/src/main/main.iml
 /sleep/src/test/test.iml
+/sleep/build
