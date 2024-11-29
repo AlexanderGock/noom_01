@@ -6,4 +6,6 @@ import com.noom.interview.fullstack.sleep.model.User;
 public interface ISleepManagementService {
 
   Sleep createSleep(Sleep sleep, User user);
+
+  Sleep getLastNightSleep(User user);
 }

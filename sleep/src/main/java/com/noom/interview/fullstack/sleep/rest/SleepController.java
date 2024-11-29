@@ -15,7 +15,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/sleeps")
-@Slf4j
 @RequiredArgsConstructor
 public class SleepController {
 
@@ -39,20 +37,16 @@ public class SleepController {
   @ResponseStatus(HttpStatus.CREATED)
   public @Valid SleepResource createSleep(@RequestBody @Valid SleepDto sleepDto) {
     Sleep sleep = sleepDtoToSleepDomainMapper.mapToDomain(sleepDto);
-    User hardcodedUser = User.builder().id(8L).build();
+    User hardcodedUser = User.builder().id(11L).build();
     Sleep createdSleep = sleepManagementService.createSleep(sleep, hardcodedUser);
     return sleepDomainToSleepResourceMapper.mapToSleepResource(createdSleep);
   }
 
   @GetMapping("/lastnight")
   public @Valid SleepResource getLastNightSleep() {
-    return SleepResource.builder()
-        .sleepTo(LocalTime.now())
-        .sleepFrom(LocalTime.now())
-        .sleepDay(LocalDate.now())
-        .duration(LocalTime.of(8, 5))
-        .mood(Mood.OK)
-        .build();
+    User hardcodedUser = User.builder().id(10L).build();
+    Sleep sleep = sleepManagementService.getLastNightSleep(hardcodedUser);
+    return sleepDomainToSleepResourceMapper.mapToSleepResource(sleep);
   }
 
   @GetMapping

@@ -8,15 +8,18 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import com.noom.interview.fullstack.sleep.db.entity.SleepEntity;
 import com.noom.interview.fullstack.sleep.db.mapper.SleepDomainToSleepEntityMapper;
 import com.noom.interview.fullstack.sleep.db.mapper.SleepEntityToSleepDomainMapper;
 import com.noom.interview.fullstack.sleep.db.repository.SleepRepository;
 import com.noom.interview.fullstack.sleep.exception.RecordAlreadyExistsException;
+import com.noom.interview.fullstack.sleep.exception.SleepNotFoundException;
 import com.noom.interview.fullstack.sleep.model.Sleep;
 import com.noom.interview.fullstack.sleep.model.User;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -79,5 +82,43 @@ class SleepManagementServiceUnitTest {
     // then
     verify(sleepRepository).existsByUserIdAndSleepDay(eq(111L), any(Date.class));
     verify(sleepRepository, never()).save(any(SleepEntity.class));
+  }
+
+  @Test
+  void shouldGetLastNightSleep() {
+    // given
+    User user = User.builder().id(111L).build();
+    SleepEntity entity = SleepEntity.builder().build();
+    Sleep sleep = Sleep.builder().build();
+
+    given(sleepRepository.findOneByUserIdAndSleepDay(anyLong(), any(Date.class))).willReturn(
+        Optional.of(entity));
+    given(sleepEntityToSleepDomainMapper.mapToDomain(any(SleepEntity.class))).willReturn(sleep);
+
+    // when
+    Sleep result = sleepManagementService.getLastNightSleep(user);
+
+    // then
+    assertThat(result).isNotNull().isEqualTo(sleep);
+
+    verify(sleepRepository).findOneByUserIdAndSleepDay(eq(111L), any(Date.class));
+    verify(sleepEntityToSleepDomainMapper).mapToDomain(entity);
+  }
+
+  @Test
+  void shouldNotFindLastNightSleep() {
+    // given
+    User user = User.builder().id(111L).build();
+
+    given(sleepRepository.findOneByUserIdAndSleepDay(anyLong(), any(Date.class))).willReturn(
+        Optional.empty());
+
+    // when
+    assertThatExceptionOfType(SleepNotFoundException.class)
+        .isThrownBy(() -> sleepManagementService.getLastNightSleep(user));
+
+    // then
+    verify(sleepRepository).findOneByUserIdAndSleepDay(eq(111L), any(Date.class));
+    verifyNoInteractions(sleepEntityToSleepDomainMapper);
   }
 }
