@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
@@ -49,6 +50,17 @@ public class RestErrorHandler {
         .path(request.getRequestURI())
         .status(HttpStatus.BAD_REQUEST.value())
         .error(getErrorMessage(e).orElse(HttpStatus.BAD_REQUEST.getReasonPhrase()))
+        .build();
+    return new ResponseEntity<>(errorResponse, getResponseHeaders(), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e, HttpServletRequest request) {
+    log.error(e.getMessage());
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .path(request.getRequestURI())
+        .status(HttpStatus.BAD_REQUEST.value())
+        .error(Optional.ofNullable(e.getMessage()).orElse(HttpStatus.BAD_REQUEST.getReasonPhrase()))
         .build();
     return new ResponseEntity<>(errorResponse, getResponseHeaders(), HttpStatus.BAD_REQUEST);
   }

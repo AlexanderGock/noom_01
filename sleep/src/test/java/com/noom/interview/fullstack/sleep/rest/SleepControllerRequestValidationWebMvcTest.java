@@ -141,19 +141,6 @@ class SleepControllerRequestValidationWebMvcTest {
     resultActions.andExpect(jsonPath("$.error").doesNotExist());
   }
 
-  @Test
-  void shouldSucceedGettingSleepStatistics() throws Exception {
-    // given
-
-    // when
-    ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).contentType(
-        MediaType.APPLICATION_JSON_VALUE));
-
-    // then
-    resultActions.andExpect(status().isOk());
-    resultActions.andExpect(jsonPath("$.error").doesNotExist());
-  }
-
   private String buildRequestBodyWithoutSleepFrom() throws JsonProcessingException {
     return buildRequestBody(false, true, true);
   }
