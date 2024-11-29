@@ -2,6 +2,7 @@ package com.noom.interview.fullstack.sleep.rest;
 
 import com.noom.interview.fullstack.sleep.model.Sleep;
 import com.noom.interview.fullstack.sleep.model.User;
+import com.noom.interview.fullstack.sleep.rest.auth.ContextHolder;
 import com.noom.interview.fullstack.sleep.rest.mapper.SleepDomainToSleepResourceMapper;
 import com.noom.interview.fullstack.sleep.rest.mapper.SleepDtoToSleepDomainMapper;
 import com.noom.interview.fullstack.sleep.rest.request.SleepDto;
@@ -30,15 +31,15 @@ public class SleepController {
   @ResponseStatus(HttpStatus.CREATED)
   public @Valid SleepResource createSleep(@RequestBody @Valid SleepDto sleepDto) {
     Sleep sleep = sleepDtoToSleepDomainMapper.mapToDomain(sleepDto);
-    User hardcodedUser = User.builder().id(12L).build();
-    Sleep createdSleep = sleepManagementService.createSleep(sleep, hardcodedUser);
+    User user = ContextHolder.getUser();
+    Sleep createdSleep = sleepManagementService.createSleep(sleep, user);
     return sleepDomainToSleepResourceMapper.mapToSleepResource(createdSleep);
   }
 
   @GetMapping("/lastnight")
   public @Valid SleepResource getLastNightSleep() {
-    User hardcodedUser = User.builder().id(12L).build();
-    Sleep sleep = sleepManagementService.getLastNightSleep(hardcodedUser);
+    User user = ContextHolder.getUser();
+    Sleep sleep = sleepManagementService.getLastNightSleep(user);
     return sleepDomainToSleepResourceMapper.mapToSleepResource(sleep);
   }
 }

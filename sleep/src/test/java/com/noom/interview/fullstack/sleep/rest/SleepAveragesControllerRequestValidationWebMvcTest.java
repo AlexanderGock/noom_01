@@ -32,8 +32,9 @@ class SleepAveragesControllerRequestValidationWebMvcTest {
     // given
 
     // when
-    ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).contentType(
-        MediaType.APPLICATION_JSON_VALUE).param("days", "0"));
+    ResultActions resultActions = mockMvc.perform(
+        MockMvcRequestBuilders.get(BASE_URL).contentType(MediaType.APPLICATION_JSON_VALUE)
+            .param("days", "0").header("user-id", "100"));
 
     // then
     resultActions.andExpect(status().isBadRequest());
@@ -46,8 +47,9 @@ class SleepAveragesControllerRequestValidationWebMvcTest {
     // given
 
     // when
-    ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).contentType(
-        MediaType.APPLICATION_JSON_VALUE).param("days", "91"));
+    ResultActions resultActions = mockMvc.perform(
+        MockMvcRequestBuilders.get(BASE_URL).contentType(MediaType.APPLICATION_JSON_VALUE)
+            .param("days", "91").header("user-id", "100"));
 
     // then
     resultActions.andExpect(status().isBadRequest());
