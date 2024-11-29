@@ -54,17 +54,4 @@ class SleepAveragesControllerRequestValidationWebMvcTest {
     resultActions.andExpect(
         jsonPath("$.error").value("getSleepAverages.days: must be less than or equal to 90"));
   }
-
-  @Test
-  void shouldSucceedGettingSleepStatistics() throws Exception {
-    // given
-
-    // when
-    ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).contentType(
-        MediaType.APPLICATION_JSON_VALUE));
-
-    // then
-    resultActions.andExpect(status().isOk());
-    resultActions.andExpect(jsonPath("$.error").doesNotExist());
-  }
 }

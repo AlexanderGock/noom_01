@@ -2,13 +2,9 @@ package com.noom.interview.fullstack.sleep.rest;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.noom.interview.fullstack.sleep.rest.mapper.SleepDomainToSleepResourceMapper;
 import com.noom.interview.fullstack.sleep.rest.mapper.SleepDtoToSleepDomainMapper;
-import com.noom.interview.fullstack.sleep.rest.request.SleepDto;
 import com.noom.interview.fullstack.sleep.service.ISleepManagementService;
-import java.time.LocalTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -19,7 +15,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @WebMvcTest(SleepController.class)
-class SleepControllerRequestValidationWebMvcTest {
+class SleepControllerRequestValidationWebMvcTest extends AbstractSleepControllerWebMvcTest {
 
   private static final String BASE_URL = "/api/sleeps";
 
@@ -31,9 +27,6 @@ class SleepControllerRequestValidationWebMvcTest {
 
   @Autowired
   private MockMvc mockMvc;
-
-  @Autowired
-  private ObjectMapper objectMapper;
 
   @MockBean
   private ISleepManagementService sleepManagementService;
@@ -112,54 +105,5 @@ class SleepControllerRequestValidationWebMvcTest {
     // then
     resultActions.andExpect(status().isBadRequest());
     resultActions.andExpect(jsonPath("$.error").value("sleepFrom: 25:01:01"));
-  }
-
-  @Test
-  void shouldSucceedPostingSleep() throws Exception {
-    // given
-    String requestBody = buildRequestBody(true, true, true);
-
-    // when
-    ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(
-        MediaType.APPLICATION_JSON_VALUE).content(requestBody));
-
-    // then
-    resultActions.andExpect(status().isCreated());
-    resultActions.andExpect(jsonPath("$.error").doesNotExist());
-  }
-
-  @Test
-  void shouldSucceedGettingLastNight() throws Exception {
-    // given
-
-    // when
-    ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/lastnight").contentType(
-        MediaType.APPLICATION_JSON_VALUE));
-
-    // then
-    resultActions.andExpect(status().isOk());
-    resultActions.andExpect(jsonPath("$.error").doesNotExist());
-  }
-
-  private String buildRequestBodyWithoutSleepFrom() throws JsonProcessingException {
-    return buildRequestBody(false, true, true);
-  }
-
-  private String buildRequestBodyWithoutSleepTo() throws JsonProcessingException {
-    return buildRequestBody(true, false, true);
-  }
-
-  private String buildRequestBodyWithoutMood() throws JsonProcessingException {
-    return buildRequestBody(true, true, false);
-  }
-
-  private String buildRequestBody(boolean withSleepFrom, boolean withSleepTo, boolean withMood)
-      throws JsonProcessingException {
-    SleepDto sleepDto = SleepDto.builder()
-        .sleepFrom(withSleepFrom ? LocalTime.now() : null)
-        .sleepTo(withSleepTo ? LocalTime.now() : null)
-        .mood(withMood ? Mood.OK : null)
-        .build();
-    return objectMapper.writeValueAsString(sleepDto);
   }
 }
