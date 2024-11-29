@@ -3,6 +3,7 @@ package com.noom.interview.fullstack.sleep.rest;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonMappingException.Reference;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.noom.interview.fullstack.sleep.exception.RecordAlreadyExistsException;
 import com.noom.interview.fullstack.sleep.rest.response.ErrorResponse;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +59,17 @@ public class RestErrorHandler {
         .path(request.getRequestURI())
         .status(HttpStatus.BAD_REQUEST.value())
         .error(getErrorMessage(e).orElse(HttpStatus.BAD_REQUEST.getReasonPhrase()))
+        .build();
+    return new ResponseEntity<>(errorResponse, getResponseHeaders(), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(RecordAlreadyExistsException.class)
+  public ResponseEntity<ErrorResponse> handleRecordAlreadyExistsException(RecordAlreadyExistsException e, HttpServletRequest request) {
+    log.error(e.getMessage());
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .path(request.getRequestURI())
+        .status(HttpStatus.BAD_REQUEST.value())
+        .error(e.getMessage())
         .build();
     return new ResponseEntity<>(errorResponse, getResponseHeaders(), HttpStatus.BAD_REQUEST);
   }

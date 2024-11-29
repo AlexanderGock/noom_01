@@ -97,4 +97,68 @@ class SleepRepositoryDataJpaTest {
     assertThat(sleepEntityList.get(0).getSleepDay()).isEqualTo(Date.valueOf("2024-11-23"));
     assertThat(sleepEntityList.get(1).getSleepDay()).isEqualTo(Date.valueOf("2024-11-28"));
   }
+
+  @Test
+  void shouldFindRecordBySleepDate() {
+    // given
+    SleepEntity entityOld = SleepEntityBuilder.aSleepEntity()
+        .sleepDay(Date.valueOf("2024-11-17"))
+        .userId(1L)
+        .build();
+    sleepRepository.save(entityOld);
+
+    // when
+    Optional<SleepEntity> sleepEntityOptional = sleepRepository.findOneByUserIdAndSleepDay(1L, Date.valueOf("2024-11-17"));
+
+    // then
+    assertThat(sleepEntityOptional).isPresent();
+  }
+
+  @Test
+  void shouldNotFindRecordBySleepDate() {
+    // given
+    SleepEntity entityOld = SleepEntityBuilder.aSleepEntity()
+        .sleepDay(Date.valueOf("2024-11-16"))
+        .userId(1L)
+        .build();
+    sleepRepository.save(entityOld);
+
+    // when
+    Optional<SleepEntity> sleepEntityOptional = sleepRepository.findOneByUserIdAndSleepDay(1L, Date.valueOf("2024-11-17"));
+
+    // then
+    assertThat(sleepEntityOptional).isEmpty();
+  }
+
+  @Test
+  void shouldExistRecordBySleepDate() {
+    // given
+    SleepEntity entityOld = SleepEntityBuilder.aSleepEntity()
+        .sleepDay(Date.valueOf("2024-11-15"))
+        .userId(1L)
+        .build();
+    sleepRepository.save(entityOld);
+
+    // when
+    boolean exists = sleepRepository.existsByUserIdAndSleepDay(1L, Date.valueOf("2024-11-15"));
+
+    // then
+    assertThat(exists).isTrue();
+  }
+
+  @Test
+  void shouldNotExistRecordBySleepDate() {
+    // given
+    SleepEntity entityOld = SleepEntityBuilder.aSleepEntity()
+        .sleepDay(Date.valueOf("2024-11-13"))
+        .userId(1L)
+        .build();
+    sleepRepository.save(entityOld);
+
+    // when
+    boolean exists = sleepRepository.existsByUserIdAndSleepDay(1L, Date.valueOf("2024-11-14"));
+
+    // then
+    assertThat(exists).isFalse();
+  }
 }
