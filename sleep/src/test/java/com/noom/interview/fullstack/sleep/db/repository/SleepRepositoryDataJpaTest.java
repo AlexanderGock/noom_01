@@ -1,6 +1,7 @@
 package com.noom.interview.fullstack.sleep.db.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import com.noom.interview.fullstack.sleep.SleepApplication;
 import com.noom.interview.fullstack.sleep.db.entity.SleepEntity;
 import com.noom.interview.fullstack.sleep.db.entity.SleepEntityBuilder;
@@ -160,5 +161,22 @@ class SleepRepositoryDataJpaTest {
 
     // then
     assertThat(exists).isFalse();
+  }
+
+  @Test
+  void shouldFailToCreateRecordForSameDaySameUser() {
+    // given
+    SleepEntity existingEntity = SleepEntityBuilder.aSleepEntity()
+        .sleepDay(Date.valueOf("2024-11-13"))
+        .userId(1L)
+        .build();
+    sleepRepository.save(existingEntity);
+
+    // when // then
+    SleepEntity newEntity = SleepEntityBuilder.aSleepEntity()
+        .sleepDay(Date.valueOf("2024-11-13"))
+        .userId(1L)
+        .build();
+    assertThatExceptionOfType(Exception.class).isThrownBy(() -> sleepRepository.save(newEntity));
   }
 }
