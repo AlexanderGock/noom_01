@@ -8,19 +8,22 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/sleeps")
+@RequestMapping("/api/sleeps")
 @Slf4j
 public class SleepController {
 
   @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
   public @Valid SleepResource createSleep(@RequestBody @Valid SleepDto sleepDto) {
     log.info("sleep: {}", sleepDto);
     return SleepResource.builder()
@@ -32,8 +35,8 @@ public class SleepController {
         .build();
   }
 
-  @GetMapping("/latest")
-  public @Valid SleepResource getLatestSleep() {
+  @GetMapping("/lastnight")
+  public @Valid SleepResource getLastNightSleep() {
     return SleepResource.builder()
         .sleepTo(LocalTime.now())
         .sleepFrom(LocalTime.now())
