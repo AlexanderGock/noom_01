@@ -3,12 +3,15 @@ package com.noom.interview.fullstack.sleep.rest;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonMappingException.Reference;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.noom.interview.fullstack.sleep.exception.RecordAlreadyExistsException;
+import com.noom.interview.fullstack.sleep.exception.SleepNotFoundException;
 import com.noom.interview.fullstack.sleep.rest.response.ErrorResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
@@ -51,6 +54,17 @@ public class RestErrorHandler {
     return new ResponseEntity<>(errorResponse, getResponseHeaders(), HttpStatus.BAD_REQUEST);
   }
 
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e, HttpServletRequest request) {
+    log.error(e.getMessage());
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .path(request.getRequestURI())
+        .status(HttpStatus.BAD_REQUEST.value())
+        .error(Optional.ofNullable(e.getMessage()).orElse(HttpStatus.BAD_REQUEST.getReasonPhrase()))
+        .build();
+    return new ResponseEntity<>(errorResponse, getResponseHeaders(), HttpStatus.BAD_REQUEST);
+  }
+
   @ExceptionHandler(HttpMessageConversionException.class)
   public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageConversionException e, HttpServletRequest request) {
     log.error(e.getMessage());
@@ -60,6 +74,28 @@ public class RestErrorHandler {
         .error(getErrorMessage(e).orElse(HttpStatus.BAD_REQUEST.getReasonPhrase()))
         .build();
     return new ResponseEntity<>(errorResponse, getResponseHeaders(), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(RecordAlreadyExistsException.class)
+  public ResponseEntity<ErrorResponse> handleRecordAlreadyExistsException(RecordAlreadyExistsException e, HttpServletRequest request) {
+    log.error(e.getMessage());
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .path(request.getRequestURI())
+        .status(HttpStatus.BAD_REQUEST.value())
+        .error(e.getMessage())
+        .build();
+    return new ResponseEntity<>(errorResponse, getResponseHeaders(), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(SleepNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleSleepNotFoundException(SleepNotFoundException e, HttpServletRequest request) {
+    log.error(e.getMessage());
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .path(request.getRequestURI())
+        .status(HttpStatus.NOT_FOUND.value())
+        .error(e.getMessage())
+        .build();
+    return new ResponseEntity<>(errorResponse, getResponseHeaders(), HttpStatus.NOT_FOUND);
   }
 
   private MultiValueMap<String, String> getResponseHeaders() {

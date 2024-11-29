@@ -13,4 +13,8 @@ public interface SleepRepository extends JpaRepository<SleepEntity, Long> {
   Optional<SleepEntity> findFirstByUserIdOrderBySleepDayDesc(long userId);
 
   List<SleepEntity> findAllByUserIdAndSleepDayGreaterThan(long userId, Date startDate);
+
+  Optional<SleepEntity> findOneByUserIdAndSleepDay(long userId, Date sleepDate);
+
+  boolean existsByUserIdAndSleepDay(long userId, Date sleepDate);
 }

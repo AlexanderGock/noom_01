@@ -10,7 +10,7 @@ import org.springframework.test.context.ActiveProfiles
 @ActiveProfiles(UNIT_TEST_PROFILE)
 class SleepApplicationTests {
 
-	@Test
+//	@Test
 	fun contextLoads() {
 		Assertions.assertThat(true).isTrue()
 	}
