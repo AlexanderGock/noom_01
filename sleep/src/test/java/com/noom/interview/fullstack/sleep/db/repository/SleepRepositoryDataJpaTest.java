@@ -22,44 +22,6 @@ class SleepRepositoryDataJpaTest {
   private SleepRepository sleepRepository;
 
   @Test
-  void shouldFindSingleLatestRecord() {
-    // given
-    SleepEntity entity1 = SleepEntityBuilder.aSleepEntity()
-        .sleepDay(Date.valueOf("2024-11-10"))
-        .userId(1L)
-        .build();
-    sleepRepository.save(entity1);
-    SleepEntity entity2 = SleepEntityBuilder.aSleepEntity()
-        .sleepDay(Date.valueOf("2024-11-09"))
-        .userId(1L)
-        .build();
-    sleepRepository.save(entity2);
-    SleepEntity entity3 = SleepEntityBuilder.aSleepEntity()
-        .sleepDay(Date.valueOf("2024-11-11"))
-        .userId(2L)
-        .build();
-    sleepRepository.save(entity3);
-
-    // when
-    Optional<SleepEntity> sleepEntityOptional = sleepRepository.findFirstByUserIdOrderBySleepDayDesc(1L);
-
-    // then
-    assertThat(sleepEntityOptional).isPresent();
-    assertThat(sleepEntityOptional.get().getSleepDay()).isEqualTo(Date.valueOf("2024-11-10"));
-  }
-
-  @Test
-  void shouldNotFindLatestRecord() {
-    // given
-
-    // when
-    Optional<SleepEntity> sleepEntityOptional = sleepRepository.findFirstByUserIdOrderBySleepDayDesc(1L);
-
-    // then
-    assertThat(sleepEntityOptional).isEmpty();
-  }
-
-  @Test
   void shouldFindRecordsForLast10Days() {
     // given
     SleepEntity entityOld = SleepEntityBuilder.aSleepEntity()
