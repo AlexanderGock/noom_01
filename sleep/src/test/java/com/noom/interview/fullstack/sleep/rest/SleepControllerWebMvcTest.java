@@ -30,9 +30,6 @@ class SleepControllerWebMvcTest extends AbstractSleepControllerWebMvcTest {
   @Autowired
   private MockMvc mockMvc;
 
-  @Autowired
-  private ObjectMapper objectMapper;
-
   @MockBean
   private ISleepManagementService sleepManagementService;
 
@@ -56,8 +53,7 @@ class SleepControllerWebMvcTest extends AbstractSleepControllerWebMvcTest {
     given(sleepDomainToSleepResourceMapper.mapToSleepResource(any())).willReturn(sleepResource);
 
     // when
-    ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(
-        MediaType.APPLICATION_JSON_VALUE).content(requestBody));
+    ResultActions resultActions = mockMvc.perform(createPostRequest(BASE_URL, requestBody));
 
     // then
     resultActions.andExpect(status().isCreated());
@@ -77,8 +73,7 @@ class SleepControllerWebMvcTest extends AbstractSleepControllerWebMvcTest {
         RecordAlreadyExistsException.class);
 
     // when
-    ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(
-        MediaType.APPLICATION_JSON_VALUE).content(requestBody));
+    ResultActions resultActions = mockMvc.perform(createPostRequest(BASE_URL, requestBody));
 
     // then
     resultActions.andExpect(status().isBadRequest());
@@ -92,12 +87,25 @@ class SleepControllerWebMvcTest extends AbstractSleepControllerWebMvcTest {
     given(sleepManagementService.createSleep(any(), any())).willThrow(RuntimeException.class);
 
     // when
-    ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(
-        MediaType.APPLICATION_JSON_VALUE).content(requestBody));
+    ResultActions resultActions = mockMvc.perform(createPostRequest(BASE_URL, requestBody));
 
     // then
     resultActions.andExpect(status().isInternalServerError());
     resultActions.andExpect(jsonPath("$.error").hasJsonPath());
+  }
+
+  @Test
+  void shouldReplyWithCode401WhenAuthorizationHeaderIsMissing() throws Exception {
+    // given
+    String requestBody = buildValidRequestBody();
+    given(sleepManagementService.createSleep(any(), any())).willThrow(RuntimeException.class);
+
+    // when
+    ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(
+        MediaType.APPLICATION_JSON_VALUE).content(requestBody));
+
+    // then
+    resultActions.andExpect(status().isUnauthorized());
   }
 
   @Test
@@ -113,9 +121,7 @@ class SleepControllerWebMvcTest extends AbstractSleepControllerWebMvcTest {
     given(sleepDomainToSleepResourceMapper.mapToSleepResource(any())).willReturn(sleepResource);
 
     // when
-    ResultActions resultActions = mockMvc.perform(
-        MockMvcRequestBuilders.get(BASE_URL + "/lastnight").contentType(
-            MediaType.APPLICATION_JSON_VALUE));
+    ResultActions resultActions = mockMvc.perform(createGetRequest(BASE_URL + "/lastnight"));
 
     // then
     resultActions.andExpect(status().isOk());
@@ -133,9 +139,7 @@ class SleepControllerWebMvcTest extends AbstractSleepControllerWebMvcTest {
     given(sleepManagementService.getLastNightSleep(any())).willThrow(SleepNotFoundException.class);
 
     // when
-    ResultActions resultActions = mockMvc.perform(
-        MockMvcRequestBuilders.get(BASE_URL + "/lastnight").contentType(
-            MediaType.APPLICATION_JSON_VALUE));
+    ResultActions resultActions = mockMvc.perform(createGetRequest(BASE_URL + "/lastnight"));
 
     // then
     resultActions.andExpect(status().isNotFound());
@@ -148,12 +152,24 @@ class SleepControllerWebMvcTest extends AbstractSleepControllerWebMvcTest {
     given(sleepManagementService.getLastNightSleep(any())).willThrow(RuntimeException.class);
 
     // when
+    ResultActions resultActions = mockMvc.perform(createGetRequest(BASE_URL + "/lastnight"));
+
+    // then
+    resultActions.andExpect(status().isInternalServerError());
+    resultActions.andExpect(jsonPath("$.error").hasJsonPath());
+  }
+
+  @Test
+  void shouldReplyWithCode401WhenAuthorizationHeaderIsMissingInLastNight() throws Exception {
+    // given
+    given(sleepManagementService.getLastNightSleep(any())).willThrow(RuntimeException.class);
+
+    // when
     ResultActions resultActions = mockMvc.perform(
         MockMvcRequestBuilders.get(BASE_URL + "/lastnight").contentType(
             MediaType.APPLICATION_JSON_VALUE));
 
     // then
-    resultActions.andExpect(status().isInternalServerError());
-    resultActions.andExpect(jsonPath("$.error").hasJsonPath());
+    resultActions.andExpect(status().isUnauthorized());
   }
 }

@@ -10,8 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SleepRepository extends JpaRepository<SleepEntity, Long> {
 
-  Optional<SleepEntity> findFirstByUserIdOrderBySleepDayDesc(long userId);
-
   List<SleepEntity> findAllByUserIdAndSleepDayGreaterThan(long userId, Date startDate);
 
   Optional<SleepEntity> findOneByUserIdAndSleepDay(long userId, Date sleepDate);

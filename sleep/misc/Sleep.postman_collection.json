@@ -1,0 +1,100 @@
+{
+	"info": {
+		"_postman_id": "f88ebc74-14c4-4be3-9635-03a0d6092ba0",
+		"name": "Sleep",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26520017"
+	},
+	"item": [
+		{
+			"name": "Create",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "user-id",
+						"value": "{{userId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"sleepFrom\": \"00:30:00\",\r\n    \"sleepTo\": \"07:50\",\r\n    \"mood\": \"OK\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/api/sleeps",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"sleeps"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get last night",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "user-id",
+						"value": "{{userId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{host}}/api/sleeps/lastnight",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"sleeps",
+						"lastnight"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get average",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "user-id",
+						"value": "{{userId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{host}}/api/sleeps/averages",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"sleeps",
+						"averages"
+					],
+					"query": [
+						{
+							"key": "days",
+							"value": "90",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

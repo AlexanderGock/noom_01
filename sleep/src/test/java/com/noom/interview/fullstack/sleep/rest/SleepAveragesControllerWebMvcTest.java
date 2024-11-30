@@ -48,7 +48,7 @@ class SleepAveragesControllerWebMvcTest {
 
     // when
     ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).contentType(
-        MediaType.APPLICATION_JSON_VALUE));
+        MediaType.APPLICATION_JSON_VALUE).header("user-id", "100"));
 
     // then
     resultActions.andExpect(status().isOk());
@@ -61,5 +61,18 @@ class SleepAveragesControllerWebMvcTest {
     resultActions.andExpect(jsonPath("$.moodDistribution.BAD").value("3"));
     resultActions.andExpect(jsonPath("$.moodDistribution.OK").value("6"));
     resultActions.andExpect(jsonPath("$.moodDistribution.GOOD").value("5"));
+  }
+
+  @Test
+  void shouldFailWith401Code() throws Exception {
+    // given
+
+    // when
+    ResultActions resultActions = mockMvc.perform(
+        MockMvcRequestBuilders.get(BASE_URL).contentType(MediaType.APPLICATION_JSON_VALUE)
+            .param("days", "91"));
+
+    // then
+    resultActions.andExpect(status().isUnauthorized());
   }
 }

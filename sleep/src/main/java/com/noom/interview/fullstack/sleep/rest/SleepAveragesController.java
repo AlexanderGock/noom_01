@@ -1,6 +1,7 @@
 package com.noom.interview.fullstack.sleep.rest;
 
 import com.noom.interview.fullstack.sleep.model.User;
+import com.noom.interview.fullstack.sleep.rest.auth.ContextHolder;
 import com.noom.interview.fullstack.sleep.rest.mapper.SleepStatisticsDomainToRestMapper;
 import com.noom.interview.fullstack.sleep.rest.response.SleepStatistics;
 import com.noom.interview.fullstack.sleep.service.ISleepAveragesService;
@@ -25,9 +26,9 @@ public class SleepAveragesController {
 
   @GetMapping
   public @Valid SleepStatistics getSleepAverages(@RequestParam(required = false, defaultValue = "30") @Min(1) @Max(90) int days) {
-    User hardcodedUser = User.builder().id(12L).build();
+    User user = ContextHolder.getUser();
     com.noom.interview.fullstack.sleep.model.SleepStatistics sleepStatistics =
-        sleepAveragesService.getAverageValues(hardcodedUser, days);
+        sleepAveragesService.getAverageValues(user, days);
     return sleepStatisticsDomainToRestMapper.mapToRest(sleepStatistics);
   }
 }

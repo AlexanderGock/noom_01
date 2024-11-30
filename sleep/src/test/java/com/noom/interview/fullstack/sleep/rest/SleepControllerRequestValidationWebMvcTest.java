@@ -9,10 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @WebMvcTest(SleepController.class)
 class SleepControllerRequestValidationWebMvcTest extends AbstractSleepControllerWebMvcTest {
@@ -43,8 +41,7 @@ class SleepControllerRequestValidationWebMvcTest extends AbstractSleepController
     String requestBody = buildRequestBodyWithoutSleepFrom();
 
     // when
-    ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(
-        MediaType.APPLICATION_JSON_VALUE).content(requestBody));
+    ResultActions resultActions = mockMvc.perform(createPostRequest(BASE_URL, requestBody));
 
     // then
     resultActions.andExpect(status().isBadRequest());
@@ -57,8 +54,7 @@ class SleepControllerRequestValidationWebMvcTest extends AbstractSleepController
     String requestBody = buildRequestBodyWithoutSleepTo();
 
     // when
-    ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(
-        MediaType.APPLICATION_JSON_VALUE).content(requestBody));
+    ResultActions resultActions = mockMvc.perform(createPostRequest(BASE_URL, requestBody));
 
     // then
     resultActions.andExpect(status().isBadRequest());
@@ -71,8 +67,7 @@ class SleepControllerRequestValidationWebMvcTest extends AbstractSleepController
     String requestBody = buildRequestBodyWithoutMood();
 
     // when
-    ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(
-        MediaType.APPLICATION_JSON_VALUE).content(requestBody));
+    ResultActions resultActions = mockMvc.perform(createPostRequest(BASE_URL, requestBody));
 
     // then
     resultActions.andExpect(status().isBadRequest());
@@ -85,8 +80,7 @@ class SleepControllerRequestValidationWebMvcTest extends AbstractSleepController
     String requestBody = String.format(REQUEST_PATTERN, "23:00:00", "07:00:0000", Mood.GOOD.name());
 
     // when
-    ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(
-        MediaType.APPLICATION_JSON_VALUE).content(requestBody));
+    ResultActions resultActions = mockMvc.perform(createPostRequest(BASE_URL, requestBody));
 
     // then
     resultActions.andExpect(status().isBadRequest());
@@ -99,8 +93,7 @@ class SleepControllerRequestValidationWebMvcTest extends AbstractSleepController
     String requestBody = String.format(REQUEST_PATTERN, "25:01:01", "07:00", Mood.GOOD.name());
 
     // when
-    ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(
-        MediaType.APPLICATION_JSON_VALUE).content(requestBody));
+    ResultActions resultActions = mockMvc.perform(createPostRequest(BASE_URL, requestBody));
 
     // then
     resultActions.andExpect(status().isBadRequest());

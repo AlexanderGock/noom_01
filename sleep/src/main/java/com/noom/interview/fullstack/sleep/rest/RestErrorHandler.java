@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonMappingException.Reference;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.noom.interview.fullstack.sleep.exception.RecordAlreadyExistsException;
 import com.noom.interview.fullstack.sleep.exception.SleepNotFoundException;
+import com.noom.interview.fullstack.sleep.rest.auth.AuthenticationException;
 import com.noom.interview.fullstack.sleep.rest.response.ErrorResponse;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,13 +90,22 @@ public class RestErrorHandler {
 
   @ExceptionHandler(SleepNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleSleepNotFoundException(SleepNotFoundException e, HttpServletRequest request) {
-    log.error(e.getMessage());
     ErrorResponse errorResponse = ErrorResponse.builder()
         .path(request.getRequestURI())
         .status(HttpStatus.NOT_FOUND.value())
         .error(e.getMessage())
         .build();
     return new ResponseEntity<>(errorResponse, getResponseHeaders(), HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException e, HttpServletRequest request) {
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .path(request.getRequestURI())
+        .status(HttpStatus.UNAUTHORIZED.value())
+        .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+        .build();
+    return new ResponseEntity<>(errorResponse, getResponseHeaders(), HttpStatus.UNAUTHORIZED);
   }
 
   private MultiValueMap<String, String> getResponseHeaders() {
