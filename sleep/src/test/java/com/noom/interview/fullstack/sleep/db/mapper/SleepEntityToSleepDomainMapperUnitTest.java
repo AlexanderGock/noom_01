@@ -16,12 +16,13 @@ class SleepEntityToSleepDomainMapperUnitTest {
   private final SleepEntityToSleepDomainMapper sleepEntityToSleepDomainMapper = new SleepEntityToSleepDomainMapper();
 
   @Test
-  void shouldMapToDomainWhenGoToBadAfterMidnight() {
+  void shouldMapToDomainWithDuration() {
     // given
     SleepEntity entity = SleepEntity.builder()
         .sleepFrom(Time.valueOf("00:15:30"))
         .sleepTo(Time.valueOf("08:00:00"))
         .sleepDay(Date.valueOf("2014-11-29"))
+        .durationInSeconds(7 * 60 * 60)
         .mood(Mood.OK)
         .build();
 
@@ -34,11 +35,11 @@ class SleepEntityToSleepDomainMapperUnitTest {
     assertThat(sleep.getSleepTo()).isEqualTo(LocalTime.parse("08:00:00"));
     assertThat(sleep.getSleepDay()).isEqualTo(LocalDate.parse("2014-11-29"));
     assertThat(sleep.getMood()).isEqualTo(com.noom.interview.fullstack.sleep.model.Mood.OK);
-    assertThat(sleep.getDuration()).isEqualTo(Duration.parse("PT7H44M30S")); //"07:44:30"
+    assertThat(sleep.getDuration()).isEqualTo(Duration.parse("PT7H"));
   }
 
   @Test
-  void shouldMapToDomainWhenGoToBadBeforeMidnight() {
+  void shouldMapToDomainWithoutDuration() {
     // given
     SleepEntity entity = SleepEntity.builder()
         .sleepFrom(Time.valueOf("23:15:30"))
@@ -52,24 +53,6 @@ class SleepEntityToSleepDomainMapperUnitTest {
 
     // then
     assertThat(sleep).isNotNull();
-    assertThat(sleep.getDuration()).isEqualTo(Duration.parse("PT8H44M30S")); //"08:44:30"
-  }
-
-  @Test
-  void shouldMapToDomainWhenGoToBadAtMidnight() {
-    // given
-    SleepEntity entity = SleepEntity.builder()
-        .sleepFrom(Time.valueOf("00:00:00"))
-        .sleepTo(Time.valueOf("08:00:00"))
-        .sleepDay(Date.valueOf("2014-11-29"))
-        .mood(Mood.OK)
-        .build();
-
-    // when
-    Sleep sleep = sleepEntityToSleepDomainMapper.mapToDomain(entity);
-
-    // then
-    assertThat(sleep).isNotNull();
-    assertThat(sleep.getDuration()).isEqualTo(Duration.parse("PT8H")); //"08:00:00"
+    assertThat(sleep.getDuration()).isNull();
   }
 }

@@ -8,4 +8,5 @@ import lombok.Value;
 public class User {
 
   long id;
+  String timeZone;
 }

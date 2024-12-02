@@ -1,10 +1,14 @@
 package com.noom.interview.fullstack.sleep.rest;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.noom.interview.fullstack.sleep.db.entity.UserEntity;
+import com.noom.interview.fullstack.sleep.db.mapper.UserEntityToUserDomainMapper;
+import com.noom.interview.fullstack.sleep.db.repository.UserRepository;
 import com.noom.interview.fullstack.sleep.exception.RecordAlreadyExistsException;
 import com.noom.interview.fullstack.sleep.exception.SleepNotFoundException;
 import com.noom.interview.fullstack.sleep.rest.mapper.SleepDomainToSleepResourceMapper;
@@ -13,6 +17,7 @@ import com.noom.interview.fullstack.sleep.rest.response.SleepResource;
 import com.noom.interview.fullstack.sleep.service.ISleepManagementService;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -39,6 +44,12 @@ class SleepControllerWebMvcTest extends AbstractSleepControllerWebMvcTest {
   @MockBean
   private SleepDomainToSleepResourceMapper sleepDomainToSleepResourceMapper;
 
+  @MockBean
+  private UserRepository userRepository;
+
+  @MockBean
+  private UserEntityToUserDomainMapper userEntityToUserDomainMapper;
+
   @Test
   void shouldSucceedPostingSleep() throws Exception {
     // given
@@ -51,6 +62,7 @@ class SleepControllerWebMvcTest extends AbstractSleepControllerWebMvcTest {
         .mood(Mood.OK)
         .build();
     given(sleepDomainToSleepResourceMapper.mapToSleepResource(any())).willReturn(sleepResource);
+    given(userRepository.findById(anyLong())).willReturn(Optional.of(UserEntity.builder().build()));
 
     // when
     ResultActions resultActions = mockMvc.perform(createPostRequest(BASE_URL, requestBody));
@@ -71,6 +83,7 @@ class SleepControllerWebMvcTest extends AbstractSleepControllerWebMvcTest {
     String requestBody = buildValidRequestBody();
     given(sleepManagementService.createSleep(any(), any())).willThrow(
         RecordAlreadyExistsException.class);
+    given(userRepository.findById(anyLong())).willReturn(Optional.of(UserEntity.builder().build()));
 
     // when
     ResultActions resultActions = mockMvc.perform(createPostRequest(BASE_URL, requestBody));
@@ -85,6 +98,7 @@ class SleepControllerWebMvcTest extends AbstractSleepControllerWebMvcTest {
     // given
     String requestBody = buildValidRequestBody();
     given(sleepManagementService.createSleep(any(), any())).willThrow(RuntimeException.class);
+    given(userRepository.findById(anyLong())).willReturn(Optional.of(UserEntity.builder().build()));
 
     // when
     ResultActions resultActions = mockMvc.perform(createPostRequest(BASE_URL, requestBody));
@@ -106,6 +120,22 @@ class SleepControllerWebMvcTest extends AbstractSleepControllerWebMvcTest {
 
     // then
     resultActions.andExpect(status().isUnauthorized());
+    verifyNoInteractions(userRepository);
+  }
+
+  @Test
+  void shouldReplyWithCode401WhenUserNotFound() throws Exception {
+    // given
+    String requestBody = buildValidRequestBody();
+    given(sleepManagementService.createSleep(any(), any())).willThrow(RuntimeException.class);
+    given(userRepository.findById(anyLong())).willReturn(Optional.empty());
+
+    // when
+    ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL).contentType(
+        MediaType.APPLICATION_JSON_VALUE).content(requestBody));
+
+    // then
+    resultActions.andExpect(status().isUnauthorized());
   }
 
   @Test
@@ -119,6 +149,7 @@ class SleepControllerWebMvcTest extends AbstractSleepControllerWebMvcTest {
         .mood(Mood.OK)
         .build();
     given(sleepDomainToSleepResourceMapper.mapToSleepResource(any())).willReturn(sleepResource);
+    given(userRepository.findById(anyLong())).willReturn(Optional.of(UserEntity.builder().build()));
 
     // when
     ResultActions resultActions = mockMvc.perform(createGetRequest(BASE_URL + "/lastnight"));
@@ -137,6 +168,7 @@ class SleepControllerWebMvcTest extends AbstractSleepControllerWebMvcTest {
   void shouldReplyWith404WhenNoLastNightSleepFound() throws Exception {
     // given
     given(sleepManagementService.getLastNightSleep(any())).willThrow(SleepNotFoundException.class);
+    given(userRepository.findById(anyLong())).willReturn(Optional.of(UserEntity.builder().build()));
 
     // when
     ResultActions resultActions = mockMvc.perform(createGetRequest(BASE_URL + "/lastnight"));
@@ -150,6 +182,7 @@ class SleepControllerWebMvcTest extends AbstractSleepControllerWebMvcTest {
   void shouldReplyWithCode500WhenGetLastNightSleepCausingException() throws Exception {
     // given
     given(sleepManagementService.getLastNightSleep(any())).willThrow(RuntimeException.class);
+    given(userRepository.findById(anyLong())).willReturn(Optional.of(UserEntity.builder().build()));
 
     // when
     ResultActions resultActions = mockMvc.perform(createGetRequest(BASE_URL + "/lastnight"));
@@ -171,5 +204,6 @@ class SleepControllerWebMvcTest extends AbstractSleepControllerWebMvcTest {
 
     // then
     resultActions.andExpect(status().isUnauthorized());
+    verifyNoInteractions(userRepository);
   }
 }

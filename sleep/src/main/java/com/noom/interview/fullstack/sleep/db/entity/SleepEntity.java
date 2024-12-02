@@ -4,7 +4,6 @@ import java.sql.Date;
 import java.sql.Time;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
@@ -17,7 +16,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "sleep")
@@ -26,7 +24,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 @ToString(exclude = "id")
 public class SleepEntity {
 
@@ -49,4 +46,7 @@ public class SleepEntity {
   @Column(name = "mood")
   @Enumerated(EnumType.STRING)
   private Mood mood;
+
+  @Column(name = "duration_in_seconds")
+  private Integer durationInSeconds;
 }

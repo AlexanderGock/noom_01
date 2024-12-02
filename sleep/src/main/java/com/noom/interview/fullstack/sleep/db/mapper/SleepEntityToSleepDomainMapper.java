@@ -14,17 +14,17 @@ public class SleepEntityToSleepDomainMapper {
     return Sleep.builder()
         .sleepFrom(entity.getSleepFrom().toLocalTime())
         .sleepTo(entity.getSleepTo().toLocalTime())
-        .duration(calculateDuration(entity))
+        .duration(mapDuration(entity.getDurationInSeconds()))
         .sleepDay(entity.getSleepDay().toLocalDate())
         .mood(Mood.valueOf(entity.getMood().name()))
         .build();
   }
 
-  private Duration calculateDuration(SleepEntity entity) {
-    if (entity.getSleepFrom().before(entity.getSleepTo())) {
-      return Duration.between(entity.getSleepFrom().toLocalTime(), entity.getSleepTo().toLocalTime());
-    } else {
-      return Duration.of(24L, ChronoUnit.HOURS).minus(Duration.between(entity.getSleepTo().toLocalTime(), entity.getSleepFrom().toLocalTime()));
+  private Duration mapDuration(Integer durationInSeconds) {
+    // records created before V1.2 have no duration persisted
+    if (durationInSeconds == null) {
+      return null;
     }
+    return Duration.of(durationInSeconds, ChronoUnit.SECONDS);
   }
 }

@@ -1,10 +1,16 @@
 package com.noom.interview.fullstack.sleep.rest;
 
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.noom.interview.fullstack.sleep.db.entity.UserEntity;
+import com.noom.interview.fullstack.sleep.db.mapper.UserEntityToUserDomainMapper;
+import com.noom.interview.fullstack.sleep.db.repository.UserRepository;
 import com.noom.interview.fullstack.sleep.rest.mapper.SleepDomainToSleepResourceMapper;
 import com.noom.interview.fullstack.sleep.rest.mapper.SleepDtoToSleepDomainMapper;
 import com.noom.interview.fullstack.sleep.service.ISleepManagementService;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -35,10 +41,17 @@ class SleepControllerRequestValidationWebMvcTest extends AbstractSleepController
   @MockBean
   private SleepDomainToSleepResourceMapper sleepDomainToSleepResourceMapper;
 
+  @MockBean
+  private UserRepository userRepository;
+
+  @MockBean
+  private UserEntityToUserDomainMapper userEntityToUserDomainMapper;
+
   @Test
   void shouldFailPostingSleepWithoutSleepFrom() throws Exception {
     // given
     String requestBody = buildRequestBodyWithoutSleepFrom();
+    given(userRepository.findById(anyLong())).willReturn(Optional.of(UserEntity.builder().build()));
 
     // when
     ResultActions resultActions = mockMvc.perform(createPostRequest(BASE_URL, requestBody));
@@ -52,6 +65,7 @@ class SleepControllerRequestValidationWebMvcTest extends AbstractSleepController
   void shouldFailPostingSleepWithoutSleepTo() throws Exception {
     // given
     String requestBody = buildRequestBodyWithoutSleepTo();
+    given(userRepository.findById(anyLong())).willReturn(Optional.of(UserEntity.builder().build()));
 
     // when
     ResultActions resultActions = mockMvc.perform(createPostRequest(BASE_URL, requestBody));
@@ -65,6 +79,7 @@ class SleepControllerRequestValidationWebMvcTest extends AbstractSleepController
   void shouldFailPostingSleepWithoutMood() throws Exception {
     // given
     String requestBody = buildRequestBodyWithoutMood();
+    given(userRepository.findById(anyLong())).willReturn(Optional.of(UserEntity.builder().build()));
 
     // when
     ResultActions resultActions = mockMvc.perform(createPostRequest(BASE_URL, requestBody));
@@ -78,6 +93,7 @@ class SleepControllerRequestValidationWebMvcTest extends AbstractSleepController
   void shouldFailPostingSleepWithCorruptedTime() throws Exception {
     // given
     String requestBody = String.format(REQUEST_PATTERN, "23:00:00", "07:00:0000", Mood.GOOD.name());
+    given(userRepository.findById(anyLong())).willReturn(Optional.of(UserEntity.builder().build()));
 
     // when
     ResultActions resultActions = mockMvc.perform(createPostRequest(BASE_URL, requestBody));
@@ -91,6 +107,7 @@ class SleepControllerRequestValidationWebMvcTest extends AbstractSleepController
   void shouldFailPostingSleepWithInvalidTime() throws Exception {
     // given
     String requestBody = String.format(REQUEST_PATTERN, "25:01:01", "07:00", Mood.GOOD.name());
+    given(userRepository.findById(anyLong())).willReturn(Optional.of(UserEntity.builder().build()));
 
     // when
     ResultActions resultActions = mockMvc.perform(createPostRequest(BASE_URL, requestBody));

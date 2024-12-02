@@ -1,9 +1,15 @@
 package com.noom.interview.fullstack.sleep.rest;
 
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.noom.interview.fullstack.sleep.db.entity.UserEntity;
+import com.noom.interview.fullstack.sleep.db.mapper.UserEntityToUserDomainMapper;
+import com.noom.interview.fullstack.sleep.db.repository.UserRepository;
 import com.noom.interview.fullstack.sleep.rest.mapper.SleepStatisticsDomainToRestMapper;
 import com.noom.interview.fullstack.sleep.service.ISleepAveragesService;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -27,9 +33,16 @@ class SleepAveragesControllerRequestValidationWebMvcTest {
   @MockBean
   private SleepStatisticsDomainToRestMapper sleepStatisticsDomainToRestMapper;
 
+  @MockBean
+  private UserRepository userRepository;
+
+  @MockBean
+  private UserEntityToUserDomainMapper userEntityToUserDomainMapper;
+
   @Test
   void shouldFailRequestingZeroDays() throws Exception {
     // given
+    given(userRepository.findById(anyLong())).willReturn(Optional.of(UserEntity.builder().build()));
 
     // when
     ResultActions resultActions = mockMvc.perform(
@@ -45,6 +58,7 @@ class SleepAveragesControllerRequestValidationWebMvcTest {
   @Test
   void shouldFailRequesting91Days() throws Exception {
     // given
+    given(userRepository.findById(anyLong())).willReturn(Optional.of(UserEntity.builder().build()));
 
     // when
     ResultActions resultActions = mockMvc.perform(
