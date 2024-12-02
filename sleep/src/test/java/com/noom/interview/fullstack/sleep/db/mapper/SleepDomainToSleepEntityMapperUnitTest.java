@@ -24,14 +24,14 @@ class SleepDomainToSleepEntityMapperUnitTest {
         .sleepFrom(LocalTime.parse("23:30:00"))
         .sleepTo(LocalTime.parse("06:40:40"))
         .sleepDay(LocalDate.parse("2024-11-29"))
-        .duration(Duration.of(33333L, ChronoUnit.SECONDS)) // 9h 15m 33s
         .mood(Mood.OK)
         .build();
     User user = User.builder().id(123L).build();
     LocalDate today = LocalDate.parse("2024-11-29");
+    Duration duration = Duration.parse("PT8H");
 
     // when
-    SleepEntity sleepEntity = sleepDomainToSleepEntityMapper.mapToSleepEntity(sleep, user, today);
+    SleepEntity sleepEntity = sleepDomainToSleepEntityMapper.mapToSleepEntity(sleep, user, today, duration);
 
     // then
     assertThat(sleepEntity).isNotNull();
@@ -40,5 +40,6 @@ class SleepDomainToSleepEntityMapperUnitTest {
     assertThat(sleepEntity.getSleepDay()).isEqualTo(Date.valueOf("2024-11-29"));
     assertThat(sleepEntity.getMood()).isEqualTo(com.noom.interview.fullstack.sleep.db.entity.Mood.OK);
     assertThat(sleepEntity.getUserId()).isEqualTo(123L);
+    assertThat(sleepEntity.getDurationInSeconds()).isEqualTo(8 * 60 * 60);
   }
 }

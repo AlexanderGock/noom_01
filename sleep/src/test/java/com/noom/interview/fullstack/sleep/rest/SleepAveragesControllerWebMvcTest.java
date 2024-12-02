@@ -1,15 +1,21 @@
 package com.noom.interview.fullstack.sleep.rest;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.noom.interview.fullstack.sleep.db.entity.UserEntity;
+import com.noom.interview.fullstack.sleep.db.mapper.UserEntityToUserDomainMapper;
+import com.noom.interview.fullstack.sleep.db.repository.UserRepository;
 import com.noom.interview.fullstack.sleep.rest.mapper.SleepStatisticsDomainToRestMapper;
 import com.noom.interview.fullstack.sleep.rest.response.SleepStatistics;
 import com.noom.interview.fullstack.sleep.service.ISleepAveragesService;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -33,6 +39,12 @@ class SleepAveragesControllerWebMvcTest {
   @MockBean
   private SleepStatisticsDomainToRestMapper sleepStatisticsDomainToRestMapper;
 
+  @MockBean
+  private UserRepository userRepository;
+
+  @MockBean
+  private UserEntityToUserDomainMapper userEntityToUserDomainMapper;
+
   @Test
   void shouldSucceedGettingSleepStatistics() throws Exception {
     // given
@@ -45,6 +57,7 @@ class SleepAveragesControllerWebMvcTest {
         .moodDistribution(Map.of(Mood.BAD, 3, Mood.OK, 6, Mood.GOOD, 5))
         .build();
     given(sleepStatisticsDomainToRestMapper.mapToRest(any())).willReturn(sleepStatistics);
+    given(userRepository.findById(anyLong())).willReturn(Optional.of(UserEntity.builder().build()));
 
     // when
     ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).contentType(
@@ -64,13 +77,28 @@ class SleepAveragesControllerWebMvcTest {
   }
 
   @Test
-  void shouldFailWith401Code() throws Exception {
+  void shouldFailWith401CodeDueToMissingHeader() throws Exception {
     // given
 
     // when
     ResultActions resultActions = mockMvc.perform(
         MockMvcRequestBuilders.get(BASE_URL).contentType(MediaType.APPLICATION_JSON_VALUE)
             .param("days", "91"));
+
+    // then
+    resultActions.andExpect(status().isUnauthorized());
+    verifyNoInteractions(userRepository);
+  }
+
+  @Test
+  void shouldFailWith401CodeDueToMissingUser() throws Exception {
+    // given
+    given(userRepository.findById(anyLong())).willReturn(Optional.empty());
+
+    // when
+    ResultActions resultActions = mockMvc.perform(
+        MockMvcRequestBuilders.get(BASE_URL).contentType(MediaType.APPLICATION_JSON_VALUE)
+            .param("days", "91").header("user-id", "100"));
 
     // then
     resultActions.andExpect(status().isUnauthorized());
